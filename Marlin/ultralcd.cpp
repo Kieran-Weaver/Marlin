@@ -209,6 +209,8 @@ bool fan_enabled=false;
 menuFunc_t currentMenu = lcd_main_menu; /* function pointer to the currently active menu */
 uint32_t lcd_next_update_millis;
 uint8_t lcd_status_update_delay;
+bool ignore_click = false;
+bool wait_for_unclick;
 uint8_t lcdDrawUpdate = 2;                  /* Set to none-zero when the LCD needs to draw, decreased after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial) */
 
 //prevMenu and prevEncoderPosition are used to store the previous menu location when editing settings.
@@ -531,7 +533,26 @@ static void lcd_status_screen()
 
 
 #ifdef ULTIPANEL
-    if (LCD_CLICKED)
+
+    bool current_click = LCD_CLICKED;
+
+    if (ignore_click) {
+        if (wait_for_unclick) {
+          if (!current_click) {
+              ignore_click = wait_for_unclick = false;
+          }
+          else {
+              current_click = false;
+          }
+        }
+        else if (current_click) {
+            lcd_quick_feedback();
+            wait_for_unclick = true;
+            current_click = false;
+        }
+    }
+
+    if (current_click)
     {
         currentMenu = lcd_main_menu;
         encoderPosition = 0;
@@ -2196,7 +2217,7 @@ void lcd_update()
     lcd_buttons_update();
 
     #if (SDCARDDETECT > 0)
-    if((IS_SD_INSERTED != lcd_oldcardstatus))
+    if((IS_SD_INSERTED != lcd_oldcardstatus && lcd_detected()))
     {
         lcdDrawUpdate = 2;
         lcd_oldcardstatus = IS_SD_INSERTED;
@@ -2298,11 +2319,22 @@ void lcd_update()
     }
 }
 
+void lcd_ignore_click(bool b)
+{
+    ignore_click = b;
+    wait_for_unclick = false;
+}
+
 void lcd_setstatus(const char* message)
 {
     if (lcd_status_message_level > 0)
         return;
     strncpy(lcd_status_message, message, LCD_WIDTH);
+
+    size_t i = strlen(lcd_status_message);
+    memset(lcd_status_message + i, ' ', LCD_WIDTH - i);
+    lcd_status_message[LCD_WIDTH] = '\0';
+
     lcdDrawUpdate = 2;
 #ifdef FILAMENT_LCD_DISPLAY
         message_millis=millis();  //get status message to show up for a while
@@ -2313,6 +2345,11 @@ void lcd_setstatuspgm(const char* message)
     if (lcd_status_message_level > 0)
         return;
     strncpy_P(lcd_status_message, message, LCD_WIDTH);
+
+    size_t i = strlen(lcd_status_message);
+    memset(lcd_status_message + i, ' ', LCD_WIDTH - i);
+    lcd_status_message[LCD_WIDTH] = '\0';
+
     lcdDrawUpdate = 2;
 #ifdef FILAMENT_LCD_DISPLAY
         message_millis=millis();  //get status message to show up for a while
@@ -2422,6 +2459,15 @@ void lcd_buttons_update()
         }
     }
     lastEncoderBits = enc;
+}
+
+bool lcd_detected(void)
+{
+#if (defined(LCD_I2C_TYPE_MCP23017) || defined(LCD_I2C_TYPE_MCP23008)) && defined(DETECT_DEVICE)
+  return lcd.LcdDetected() == 1;
+#else
+  return true;
+#endif
 }
 
 void lcd_buzz(long duration, uint16_t freq)
