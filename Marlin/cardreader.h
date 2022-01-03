@@ -3,7 +3,11 @@
 
 #ifdef SDSUPPORT
 
-#define MAX_DIR_DEPTH 10
+#define MAX_DIR_DEPTH 10          // Maximum folder depth
+#define SORT_USES_RAM false       // Buffer while sorting, else re-read from SD
+#define SORT_USES_MORE_RAM false  // Always keep the directory in RAM
+#define SORT_LIMIT 64             // Maximum number of sorted items
+#define FOLDER_SORTING -1         // -1=above  0=none  1=below
 
 #include "SdFile.h"
 enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
@@ -29,7 +33,7 @@ public:
   void getStatus();
   void printingHasFinished();
 
-  void getfilename(const uint8_t nr);
+  void getfilename(const uint16_t nr);
   uint16_t getnrfilenames();
   
   void getAbsFilename(char *t);
@@ -39,6 +43,12 @@ public:
   void chdir(const char * relpath);
   void updir();
   void setroot();
+
+#ifdef SDCARD_SORT_ALPHA
+  void presort();
+  void flush_presort();
+  void getfilename_sorted(const uint16_t nr);
+#endif
 
 
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
@@ -57,7 +67,7 @@ public:
   bool sdprinting ;  
   bool changingFilament;
   bool cardOK ;
-  char filename[13];
+  char filename[FILENAME_LENGTH];
   char longFilename[LONG_FILENAME_LENGTH];
   int timeEstimate;
   bool filenameIsDir;
@@ -66,11 +76,19 @@ public:
 private:
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;
+#ifdef SDCARD_SORT_ALPHA
+  uint16_t sort_count;
+  uint8_t *sort_order;
+  #if SORT_USES_MORE_RAM
+    char **sortnames;
+    uint8_t *isDir;
+  #endif
+#endif
   Sd2Card card;
   SdVolume volume;
   SdFile file;
   #define SD_PROCEDURE_DEPTH 1
-  #define MAXPATHNAMELENGTH (13*MAX_DIR_DEPTH+MAX_DIR_DEPTH+1)
+  #define MAXPATHNAMELENGTH (FILENAME_LENGTH*MAX_DIR_DEPTH+MAX_DIR_DEPTH+1)
   uint8_t file_subcall_ctr;
   uint32_t filespos[SD_PROCEDURE_DEPTH];
   char filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
@@ -82,7 +100,7 @@ private:
   bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
   
   LsAction lsAction; //stored for recursion.
-  int16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
+  uint16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
   char* diveDirName;
   void lsDive(const char *prepend,SdFile parent);
 };

@@ -1925,9 +1925,9 @@ void lcd_sdcard_menu()
     card.getWorkDirName();
     if(card.filename[0]=='/')
     {
-#if SDCARDDETECT == -1
-        MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, ' ', lcd_sd_refresh);
-#endif
+      #if SDCARDDETECT == -1
+        MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
+      #endif
     }else{
         MENU_ITEM(function, LCD_STR_FOLDER "..", ' ', lcd_sd_updir);
     }
@@ -1936,56 +1936,23 @@ void lcd_sdcard_menu()
     {
         if (_menuItemNr == _lineNr)
         {
-            #ifndef SDCARD_RATHERRECENTFIRST
-              card.getfilename(i);
+            #if defined(SDCARD_RATHERRECENTFIRST) && !defined(SDCARD_SORT_ALPHA)
+              int nr = fileCnt-1-i;
             #else
-              card.getfilename(fileCnt-1-i);
+              int nr = i;
             #endif
-            if (card.filenameIsDir)
-            {
-                MENU_ITEM(sddirectory, MSG_CARD_MENU, ' ', card.filename, card.longFilename);
-            }else{
-                char filename_time_est[LONG_FILENAME_LENGTH];
-                
-                //long filename reading here:
-                
-                /*
-                int filenameMaxLen = 13;
-                char choppedFilename[filenameMaxLen+1];
-                
-                if (card.longFilename[0] == '\0') {
-                    strcpy(choppedFilename, card.filename);
-                } else {
-                    memcpy(choppedFilename, card.longFilename, filenameMaxLen);
-                }
-                
-                choppedFilename[filenameMaxLen] = '\0';
-                
-                //SERIAL_PROTOCOL(choppedFilename);
-                */
-                
-                strcpy(filename_time_est, card.filename);
-                char * filename_time_est_pointer = filename_time_est;
-                
-                int whitespaces;
-                whitespaces = 14-strlen(card.filename);
-                //whitespaces = 14-strlen(choppedFilename);
-                //whitespaces = 1;
 
-                for (int n = 0; n < whitespaces; n++)
-                {
-                    strcat(filename_time_est_pointer," ");
-                }
-                
-                card.openFile(card.filename, true, false);
-                const char* time_est_hours = itostr2(card.timeEstimate/60);
-                strcat(filename_time_est_pointer, time_est_hours);
-                strcat(filename_time_est_pointer, ":");
-                const char* time_est_minutes = itostr2(card.timeEstimate%60);
-                strcat(filename_time_est_pointer, time_est_minutes);
-                card.closefile(false);
+            #ifdef SDCARD_SORT_ALPHA
+              card.getfilename_sorted(nr);
+            #else
+              card.getfilename(nr);
+            #endif
 
-                MENU_ITEM(sdfile, MSG_CARD_MENU, ' ', card.filename, filename_time_est_pointer);
+            if (card.filenameIsDir) {
+              MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
+            }
+            else {
+              MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
             }
         }else{
             MENU_ITEM_DUMMY();
@@ -2192,7 +2159,7 @@ void lcd_init()
   #endif // SR_LCD_2W_NL
 #endif//!NEWPANEL
 
-#if defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
+#if defined(SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
     pinMode(SDCARDDETECT,INPUT);
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
