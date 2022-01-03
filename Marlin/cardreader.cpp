@@ -50,7 +50,7 @@ char *createFilename(char *buffer, const dir_t &p) //buffer>12characters
 }
 
 
-void  CardReader::lsDive(const char *prepend,SdFile parent)
+void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/)
 {
   dir_t p;
   uint8_t cnt=0;
@@ -90,16 +90,12 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
     }
     else
     {
-      if (p.name[0] == DIR_NAME_FREE) break;
-      if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
+      char pn0 = p.name[0];
+      if (pn0 == DIR_NAME_FREE) break;
+      if (pn0 == DIR_NAME_DELETED || pn0 == '.'|| pn0 == '_') continue;
       if (longFilename[0] != '\0' &&
           (longFilename[0] == '.' || longFilename[0] == '_')) continue;
-      if ( p.name[0] == '.')
-      {
-        if ( p.name[1] != '.')
-        continue;
-      }
-
+      
       if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
       filenameIsDir=DIR_IS_SUBDIR(&p);
 
@@ -121,7 +117,10 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
       } 
       else if(lsAction==LS_GetFilename)
       {
-        if (cnt == nrFiles) return;
+        if (match != NULL) {
+          if (strcasecmp(match, filename) == 0) return;
+        }
+        else if (cnt == nrFiles) return;
         cnt++;
       }
     }
@@ -214,7 +213,9 @@ void CardReader::startFileprint()
   {
     sdprinting = true;
     changingFilament = false;
-    flush_presort();
+    #ifdef SDCARD_SORT_ALPHA
+      flush_presort();
+    #endif
   }
 }
 
@@ -357,10 +358,17 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
       //SERIAL_PROTOCOLPGM(MSG_SD_SIZE);
       //SERIAL_PROTOCOLLN(filesize);
       sdpos = 0;
+<<<<<<< HEAD
       getTimeEstimate();
       setIndex(0);
       //SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
       lcd_setstatus(fname);
+=======
+      
+      SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
+      getfilename(0, fname);
+      lcd_setstatus(longFilename[0] ? longFilename : fname);
+>>>>>>> bd224054123e4332efbc3d3d74652680f0f83996
     }
     else
     {
@@ -651,7 +659,7 @@ void CardReader::closefile(bool store_location)
   
 }
 
-void CardReader::getfilename(const uint16_t nr)
+void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/)
 {
   #if defined(SDCARD_SORT_ALPHA) && SORT_USES_RAM && SORT_USES_MORE_RAM
     if (nr < sort_count) {
@@ -665,7 +673,8 @@ void CardReader::getfilename(const uint16_t nr)
   lsAction=LS_GetFilename;
   nrFiles=nr;
   curDir->rewind();
-  lsDive("",*curDir);
+  lsDive("",*curDir,match);
+  
 }
 
 uint16_t CardReader::getnrfilenames()

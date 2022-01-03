@@ -675,6 +675,8 @@ static void lcd_sdcard_stop()
     autotempShutdown();
 
 	cancel_heatup = true;
+
+	lcd_setstatus(MSG_PRINT_ABORTED);
 }
 
 /* Menu implementation */
@@ -1964,15 +1966,15 @@ void lcd_sdcard_menu()
 #define menu_edit_type(_type, _name, _strFunc, scale) \
     void menu_edit_ ## _name () \
     { \
-        if ((int32_t)encoderPosition < minEditValue) \
-            encoderPosition = minEditValue; \
+        if ((int32_t)encoderPosition < 0) \
+            encoderPosition = 0; \
         if ((int32_t)encoderPosition > maxEditValue) \
             encoderPosition = maxEditValue; \
         if (lcdDrawUpdate) \
-            lcd_implementation_drawedit(editLabel, _strFunc(((_type)encoderPosition) / scale)); \
+            lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) / scale)); \
         if (LCD_CLICKED) \
         { \
-            *((_type*)editValue) = ((_type)encoderPosition) / scale; \
+            *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) / scale; \
             lcd_quick_feedback(); \
             currentMenu = prevMenu; \
             encoderPosition = prevEncoderPosition; \
@@ -1980,15 +1982,15 @@ void lcd_sdcard_menu()
     } \
     void menu_edit_callback_ ## _name () \
     { \
-        if ((int32_t)encoderPosition < minEditValue) \
-            encoderPosition = minEditValue; \
+        if ((int32_t)encoderPosition < 0) \
+            encoderPosition = 0; \
         if ((int32_t)encoderPosition > maxEditValue) \
             encoderPosition = maxEditValue; \
         if (lcdDrawUpdate) \
-            lcd_implementation_drawedit(editLabel, _strFunc(((_type)encoderPosition) / scale)); \
+            lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) / scale)); \
         if (LCD_CLICKED) \
         { \
-            *((_type*)editValue) = ((_type)encoderPosition) / scale; \
+            *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) / scale; \
             lcd_quick_feedback(); \
             currentMenu = prevMenu; \
             encoderPosition = prevEncoderPosition; \
@@ -2006,8 +2008,8 @@ void lcd_sdcard_menu()
         editLabel = pstr; \
         editValue = ptr; \
         minEditValue = minValue * scale; \
-        maxEditValue = maxValue * scale; \
-        encoderPosition = (*ptr) * scale; \
+        maxEditValue = maxValue * scale - minEditValue; \
+        encoderPosition = (*ptr) * scale - minEditValue; \
     }\
     static void menu_action_setting_edit_callback_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue, menuFunc_t callback) \
     { \
@@ -2020,8 +2022,8 @@ void lcd_sdcard_menu()
         editLabel = pstr; \
         editValue = ptr; \
         minEditValue = minValue * scale; \
-        maxEditValue = maxValue * scale; \
-        encoderPosition = (*ptr) * scale; \
+        maxEditValue = maxValue * scale - minEditValue; \
+        encoderPosition = (*ptr) * scale - minEditValue; \
         callbackFunc = callback;\
     }
 menu_edit_type(int, int3, itostr3, 1)
@@ -2144,7 +2146,7 @@ void lcd_init()
   #ifdef SR_LCD_2W_NL // Non latching 2 wire shift register
      pinMode (SR_DATA_PIN, OUTPUT);
      pinMode (SR_CLK_PIN, OUTPUT);
-  #elif defined(SHIFT_CLK) 
+  #elif defined(SHIFT_CLK)
      pinMode(SHIFT_CLK,OUTPUT);
      pinMode(SHIFT_LD,OUTPUT);
      pinMode(SHIFT_EN,OUTPUT);
