@@ -30,7 +30,7 @@
 
 //automatic temperature: The hot end target temperature is calculated by all the buffered lines of gcode.
 //The maximum buffered steps/sec of the extruder motor are called "se".
-//You enter the autotemp mode by a M109 S<mintemp> B<maxtemp> F<factor>
+//You enter the autotemp mode by a M109 S<mintemp> T<maxtemp> F<factor>
 // the target temperature is set to mintemp+factor*se[steps/sec] and limited by mintemp and maxtemp
 // you exit the value by any M109 without F*
 // Also, if the temperature is set to a value <mintemp, it is not changed by autotemp.
@@ -236,12 +236,12 @@
 
 // Feedrates for manual moves along X, Y, Z, E from panel
 #ifdef ULTIPANEL
-#define MANUAL_FEEDRATE {50*60, 50*60, 15*60, 60}  // set the speeds for manual moves (mm/min)
+#define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min)
 #endif
 
 //Comment to disable setting feedrate multiplier via encoder
 #ifdef ULTIPANEL
-    //#define ULTIPANEL_FEEDMULTIPLY
+    #define ULTIPANEL_FEEDMULTIPLY
 #endif
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.
@@ -276,9 +276,10 @@
 // uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
 // Number of channels available for I2C digipot, For Azteeg X3 Pro we have 8
-#define DIGIPOT_I2C_NUM_CHANNELS 8
+#define DIGIPOT_I2C_NUM_CHANNELS 4
 // actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
-#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+//#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+#define DIGIPOT_I2C_MOTOR_CURRENTS {1.7, 1.7, 1.7, 1.7}
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -340,8 +341,8 @@
 #ifdef ADVANCE
   #define EXTRUDER_ADVANCE_K .0
 
-  #define D_FILAMENT 1.75
-  #define STEPS_MM_E 94
+  #define D_FILAMENT 2.85
+  #define STEPS_MM_E 836
   #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
   #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
@@ -357,7 +358,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
 // in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
 // be commented out otherwise
-#define SDCARDDETECTINVERTED
+//#define SDCARDDETECTINVERTED
 
 #ifdef ULTIPANEL
  #undef SDCARDDETECTINVERTED

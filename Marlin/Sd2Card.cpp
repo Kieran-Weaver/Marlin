@@ -376,6 +376,29 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
  * the value zero, false, is returned for failure.
  */
 bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
+#ifdef SD_CHECK_AND_RETRY
+  uint8_t retryCnt = 3;
+  // use address if not SDHC card
+  if (type()!= SD_CARD_TYPE_SDHC) blockNumber <<= 9;
+ retry2:
+  retryCnt --;
+  if (cardCommand(CMD17, blockNumber)) {
+    error(SD_CARD_ERROR_CMD17);
+    if (retryCnt > 0) goto retry;
+    goto fail;
+  }
+  if (!readData(dst, 512))
+  {
+    if (retryCnt > 0) goto retry;
+    goto fail;
+  }
+  return true;
+ retry:
+   chipSelectHigh();
+   cardCommand(CMD12, 0);//Try sending a stop command, but ignore the result.
+   errorCode_ = 0;
+   goto retry2;
+#else
   // use address if not SDHC card
   if (type()!= SD_CARD_TYPE_SDHC) blockNumber <<= 9;
     uint32_t retryCnt = 5;
@@ -402,6 +425,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
     goto fail;
   }
   return readData(dst, 512);
+#endif
 
  fail:
   chipSelectHigh();
@@ -420,6 +444,7 @@ bool Sd2Card::readData(uint8_t *dst) {
   return readData(dst, 512);
 }
 
+#ifdef SD_CHECK_AND_RETRY
 static const uint16_t crctab[] PROGMEM = {
   0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50A5, 0x60C6, 0x70E7,
   0x8108, 0x9129, 0xA14A, 0xB16B, 0xC18C, 0xD1AD, 0xE1CE, 0xF1EF,
@@ -457,10 +482,11 @@ static const uint16_t crctab[] PROGMEM = {
 static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
   uint16_t crc = 0;
   for (size_t i = 0; i < n; i++) {
-    crc = pgm_read_word(&crctab[(crc >> 8 ^ data[i]) & 0xFF]) ^ (crc << 8);
+    crc = pgm_read_word(&crctab[(crc >> 8 ^ data[i]) & 0XFF]) ^ (crc << 8);
   }
   return crc;
 }
+#endif
 
 //------------------------------------------------------------------------------
 bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
@@ -479,19 +505,22 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   // transfer data
   spiRead(dst, count);
 
+#ifdef SD_CHECK_AND_RETRY
   {
     uint16_t calcCrc = CRC_CCITT(dst, count);
     uint16_t recvCrc = spiRec() << 8;
     recvCrc |= spiRec();
-    if (calcCrc != recvCrc) {
-      error(SD_CARD_ERROR_CRC);
-      goto fail;
+    if (calcCrc != recvCrc)
+    {
+        error(SD_CARD_ERROR_CRC);
+        goto fail;
     }
   }
-  
+#else
   // discard CRC
   spiRec();
   spiRec();
+#endif
   chipSelectHigh();
   return true;
 

@@ -117,6 +117,7 @@
 // M107 - Fan off
 // M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
 //        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
+//        IF AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
 // M112 - Emergency stop
 // M114 - Output current position to serial port
 // M115 - Capabilities string
@@ -677,6 +678,7 @@ void get_command()
         //If command was e-stop process now
         if(strcmp(cmdbuffer[bufindw], "M112") == 0)
           kill();
+        
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
       }
@@ -1213,19 +1215,21 @@ void process_commands()
 		
         return;
       }
-      //break;
+      break;
     case 2: // G2  - CW ARC
       if(Stopped == false) {
         get_arc_coordinates();
         prepare_arc_move(true);
         return;
       }
+      break;
     case 3: // G3  - CCW ARC
       if(Stopped == false) {
         get_arc_coordinates();
         prepare_arc_move(false);
         return;
       }
+      break;
     case 4: // G4 dwell
       LCD_MESSAGEPGM(MSG_DWELL);
       codenum = 0;
@@ -1323,7 +1327,12 @@ void process_commands()
         destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
         feedrate = homing_feedrate[X_AXIS];
         if(homing_feedrate[Y_AXIS]<feedrate)
-          feedrate =homing_feedrate[Y_AXIS];
+          feedrate = homing_feedrate[Y_AXIS];
+        if (max_length(X_AXIS) > max_length(Y_AXIS)) {
+          feedrate *= sqrt(pow(max_length(Y_AXIS) / max_length(X_AXIS), 2) + 1);
+        } else {
+          feedrate *= sqrt(pow(max_length(X_AXIS) / max_length(Y_AXIS), 2) + 1);
+        }
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
         st_synchronize();
 
@@ -1829,7 +1838,7 @@ void process_commands()
         int pin_number = LED_PIN;
         if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
           pin_number = code_value();
-        for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
+        for(int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins)/sizeof(int)); i++)
         {
           if (sensitive_pins[i] == pin_number)
           {
@@ -2311,6 +2320,7 @@ void process_commands()
           if(tmp_extruder >= EXTRUDERS) {
             SERIAL_ECHO_START;
             SERIAL_ECHO(MSG_M200_INVALID_EXTRUDER);
+            break;
           }
         }
         volumetric_multiplier[tmp_extruder] = 1 / area;
@@ -2502,7 +2512,7 @@ void process_commands()
 
         if(pin_state >= -1 && pin_state <= 1){
 
-          for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
+          for(int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins)/sizeof(int)); i++)
           {
             if (sensitive_pins[i] == pin_number)
             {
@@ -3783,6 +3793,7 @@ void manage_inactivity()
 {
   if(buflen < (BUFSIZE-1))
     get_command();
+
   if( (millis() - previous_millis_cmd) >  max_inactive_time )
     if(max_inactive_time)
       kill();
