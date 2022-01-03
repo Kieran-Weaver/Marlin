@@ -42,6 +42,8 @@
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
+  
+  extern bool cancel_heatup;
     
   extern bool cancel_heatup;
     
