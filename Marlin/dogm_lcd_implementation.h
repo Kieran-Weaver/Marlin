@@ -375,6 +375,22 @@ if (IS_SD_PRINTING) {
  // Status line
  u8g.setColorIndex(0);
  u8g.setFont(FONT_STATUSMENU);
+ u8g.setPrintPos(0,61);
+ #ifndef FILAMENT_LCD_DISPLAY
+ 	u8g.print(lcd_status_message);
+ #else
+	if(message_millis+5000>millis()){  //Display both Status message line and Filament display on the last line
+	 u8g.print(lcd_status_message);
+ 	}
+ 	else
+	{
+	 lcd_printPGM(PSTR("dia:"));
+	 u8g.print(ftostr12ns(filament_width_meas));
+	 lcd_printPGM(PSTR(" factor:"));
+	 u8g.print(itostr3(extrudemultiply));
+	 u8g.print('%');
+	}
+ #endif 	
  u8g.setPrintPos(2,7);
  
  
@@ -667,7 +683,6 @@ static void lcd_implementation_clean_wizard_screen7()
 
  u8g.setPrintPos(4,9);
  u8g.print(MSG_CLEAN_WIZARD7_1);
-
 }
 
 static void lcd_implementation_extrude_screen1()
