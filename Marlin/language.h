@@ -40,7 +40,7 @@
 	#ifdef CUSTOM_MENDEL_NAME
 		#define MACHINE_NAME CUSTOM_MENDEL_NAME
 	#else
-		#define MACHINE_NAME "Mendel"
+		#define MACHINE_NAME "DittoPro"
 	#endif
 
 // Default firmware set to Mendel
@@ -61,7 +61,7 @@
 /* nothing here as of yet */
 
 // Common serial messages
-#define MSG_MARLIN "Marlin"
+#define MSG_MARLIN "Marlin "
 
 
 
@@ -69,11 +69,110 @@
 
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
+        #define MSG_AXIS "Axis"
+        #define MSG_WIZARD "Wizard"
+		#define MSG_EXIT "Exit"
+		#define MSG_BED_LEVEL "Bed Level"
+		#define MSG_CLEAN_NOZZLE "Cleaning"
+		#define MSG_CHANGE_FILAMENT "NewFilament"
+		#define MSG_HEAT "Preheat"
+		//#define MSG_COOL "Cooldown"
+		#define MSG_HOME "HomeAll"
+		#define MSG_DISABLE "Disable"
+		#define MSG_ENABLE "Enable"
+		#define MSG_CONTINUE "Continue"
+		#define MSG_RESTART "Restart"
+        #define MSG_TOGGLE "Toggle"
+        #define MSG_DIAL "Dial"
+        
+        #define MSG_DIAL_SENSITIVITY_1 "Toggle the dial"
+        #define MSG_DIAL_SENSITIVITY_2 "sensitivity between"
+        #define MSG_DIAL_SENSITIVITY_3 "high or low."
 
+		#define MSG_WIZARD1_1 "Bed Level Wizard 1/6"
+		#define MSG_WIZARD1_2 "Ensure the print"
+		#define MSG_WIZARD1_3 "surface is clipped"
+		#define MSG_WIZARD1_4 "on and the nozzle"
+		#define MSG_WIZARD1_5 "is free of debris"
+		#define MSG_WIZARD1_6 "before continuing."
+		
+		#define MSG_WIZARD2_1 "Bed Level Wizard 2/6"
+		#define MSG_WIZARD2_2 "Please Wait..."
+		#define MSG_WIZARD2_3 "Heating..."
+
+		
+		#define MSG_WIZARD3_1 "Bed Level Wizard 3/6"
+		#define MSG_WIZARD3_2 "Turn the thumb screw"
+		#define MSG_WIZARD3_3 "below the nozzle"
+		#define MSG_WIZARD3_4 "until there is a"
+		#define MSG_WIZARD3_5 "hairline gap between"
+		#define MSG_WIZARD3_6 "the nozzle and bed."
+				
+		#define MSG_WIZARD4_1 "Bed Level Wizard 4/6"
+		
+		#define MSG_WIZARD5_1 "Bed Level Wizard 5/6"
+		
+		#define MSG_WIZARD6_1 "Bed Level Wizard 6/6"
+		#define MSG_WIZARD6_2 "Your bed should now"
+		#define MSG_WIZARD6_3 "be leveled! Press"
+		#define MSG_WIZARD6_4 "restart if you"
+		#define MSG_WIZARD6_5 "would like to"
+		#define MSG_WIZARD6_6 "try again."
+		
+		#define MSG_CLEAN_WIZARD1_1 "Change Filament 1/4"
+		#define MSG_CLEAN_WIZARD1_2 "Use this wizard to"
+		#define MSG_CLEAN_WIZARD1_3 "change the filamant"
+		#define MSG_CLEAN_WIZARD1_4 "inside your machine."
+		#define MSG_CLEAN_WIZARD1_5 "Press continue when"
+		#define MSG_CLEAN_WIZARD1_6 "ready."
+		
+		#define MSG_CLEAN_WIZARD2_1 "Change Filament 2/4"
+		#define MSG_CLEAN_WIZARD2_2 "Please wait..."
+		#define MSG_CLEAN_WIZARD2_3 "Heating up..."
+		
+		
+		#define MSG_CLEAN_WIZARD3_1 "Change Filament 3/4"
+		#define MSG_CLEAN_WIZARD3_2 "Pull the filament out"
+		#define MSG_CLEAN_WIZARD3_3 "(if any). Insert new"
+		#define MSG_CLEAN_WIZARD3_4 "filament and push"
+		#define MSG_CLEAN_WIZARD3_5 "down until new color"
+		#define MSG_CLEAN_WIZARD3_6 "comes out of hotend."
+		
+		#define MSG_CLEAN_WIZARD4_1 "Change Filament 4/4"
+		#define MSG_CLEAN_WIZARD4_2 "You're done! Trim the"
+		#define MSG_CLEAN_WIZARD4_3 "tip of the filament"
+		#define MSG_CLEAN_WIZARD4_4 "of the previous spool"
+		#define MSG_CLEAN_WIZARD4_5 "and store it away in"
+		#define MSG_CLEAN_WIZARD4_6 "a cool dry place."
+		
+		#define MSG_CLEAN_WIZARD5_1 "Cleaning Wizard 5/7"
+		#define MSG_CLEAN_WIZARD5_2 "Pull out filament,"
+		#define MSG_CLEAN_WIZARD5_3 "cut off the tip and"
+		#define MSG_CLEAN_WIZARD5_4 "reinsert filament."
+		
+		#define MSG_CLEAN_WIZARD6_1 "Cleaning Wizard 6/7"
+		#define MSG_CLEAN_WIZARD7_1 "Cleaning Wizard 7/7"
+        
+        #define MSG_EXTRUDE1_1 "Extrude Test 1/3"
+        #define MSG_EXTRUDE1_2 "This will heat up"
+        #define MSG_EXTRUDE1_3 "then extrude 10mm"
+        #define MSG_EXTRUDE1_4 "of filament"
+        
+        
+        #define MSG_EXTRUDE2_1 "Extrude Test 2/3"
+		#define MSG_EXTRUDE2_2 "Please wait..."
+		#define MSG_EXTRUDE2_3 "Heating up..."
+        
+        #define MSG_EXTRUDE3_1 "Extrude Test 3/3"
+        #define MSG_EXTRUDE3_2 "10mm extruded."
+        #define MSG_EXTRUDE3_3 "Press restart to"
+        #define MSG_EXTRUDE3_4 "extrude again."
+        
+		
 	#define WELCOME_MSG MACHINE_NAME " ready."
 	#define MSG_SD_INSERTED "Card inserted"
 	#define MSG_SD_REMOVED "Card removed"
-	#define MSG_MAIN "Main"
+	#define MSG_MAIN "  Main"
 	#define MSG_AUTOSTART "Autostart"
 	#define MSG_DISABLE_STEPPERS "Disable steppers"
 	#define MSG_AUTO_HOME "Auto home"
@@ -93,6 +192,8 @@
 	#define MSG_PREHEAT_ABS_BEDONLY "Preheat ABS Bed"
 	#define MSG_PREHEAT_ABS_SETTINGS "Preheat ABS conf"
 	#define MSG_COOLDOWN "Cooldown"
+	#define MSG_COOLINGDOWN "Cooling Down"
+	#define MSG_COOLEDDOWN "Cooled Down"
 	#define MSG_SWITCH_PS_ON "Switch power on"
 	#define MSG_SWITCH_PS_OFF "Switch power off"
 	#define MSG_EXTRUDE "Extrude"
@@ -113,6 +214,8 @@
 	#define MSG_NOZZLE2 "Nozzle3"
 	#define MSG_BED "Bed"
 	#define MSG_FAN_SPEED "Fan speed"
+	#define MSG_FAN_ON "Fan On"
+	#define MSG_FAN_OFF "Fan Off"
 	#define MSG_FLOW "Flow"
 	#define MSG_FLOW0 "Flow 0"
 	#define MSG_FLOW1 "Flow 1"
@@ -146,21 +249,21 @@
 	#define MSG_ZSTEPS "Zsteps/mm"
 	#define MSG_ESTEPS "Esteps/mm"
 	#define MSG_RECTRACT "Rectract"
-	#define MSG_TEMPERATURE "Temperature"
+	#define MSG_TEMPERATURE " Temp"
 	#define MSG_MOTION "Motion"
 	#define MSG_CONTRAST "LCD contrast"
 	#define MSG_STORE_EPROM "Store memory"
 	#define MSG_LOAD_EPROM "Load memory"
 	#define MSG_RESTORE_FAILSAFE "Restore failsafe"
 	#define MSG_REFRESH "Refresh"
-	#define MSG_WATCH "Info screen"
+	#define MSG_WATCH "Status"
 	#define MSG_PREPARE "Prepare"
 	#define MSG_TUNE "Tune"
-	#define MSG_PAUSE_PRINT "Pause print"
-	#define MSG_RESUME_PRINT "Resume print"
-	#define MSG_STOP_PRINT "Stop print"
-	#define MSG_CARD_MENU "Print from SD"
-	#define MSG_NO_CARD "No SD card"
+	#define MSG_PAUSE_PRINT "Pause"
+	#define MSG_RESUME_PRINT "Resume"
+	#define MSG_STOP_PRINT "Stop"
+	#define MSG_CARD_MENU " Print"
+	#define MSG_NO_CARD "No Card"
 	#define MSG_DWELL "Sleep..."
 	#define MSG_USERWAIT "Wait for user..."
 	#define MSG_RESUMING "Resuming print"
@@ -173,7 +276,7 @@
 	#define MSG_CONTROL_RETRACT_RECOVER "UnRet +mm"
 	#define MSG_CONTROL_RETRACT_RECOVERF "UnRet  V"
 	#define MSG_AUTORETRACT "AutoRetr."
-	#define MSG_FILAMENTCHANGE "Change filament"
+	#define MSG_FILAMENTCHANGE "Change"
 	#define MSG_INIT_SDCARD "Init. SD card"
 	#define MSG_CNG_SDCARD "Change SD card"
 	#define MSG_ZPROBE_OUT "Z probe out. bed"
@@ -213,7 +316,7 @@
 	#define MSG_ERR_NO_THERMISTORS "No thermistors - no temperature"
 	#define MSG_M109_INVALID_EXTRUDER "M109 Invalid extruder "
 	#define MSG_HEATING "Heating..."
-	#define MSG_HEATING_COMPLETE "Heating done."
+	#define MSG_HEATING_COMPLETE "Preheated."
 	#define MSG_BED_HEATING "Bed Heating."
 	#define MSG_BED_DONE "Bed done."
 	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"

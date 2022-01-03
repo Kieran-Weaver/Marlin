@@ -19,6 +19,7 @@ public:
 
   void checkautostart(bool x); 
   void openFile(char* name,bool read,bool replace_current=true);
+  void getTimeEstimate();
   void openLogFile(char* name);
   void removeFile(char* name);
   void closefile(bool store_location=false);
@@ -47,15 +48,21 @@ public:
   FORCE_INLINE uint8_t percentDone(){if(!isFileOpen()) return 0; if(filesize) return sdpos/((filesize+99)/100); else return 0;};
   FORCE_INLINE char* getWorkDirName(){workDir.getFilename(filename);return filename;};
 
+  FORCE_INLINE uint32_t recoveryCount(){return card.recoveryCount;};
+  FORCE_INLINE uint32_t errorCount(){return card.errorCount;};
+
 public:
   bool saving;
   bool logging;
   bool sdprinting ;  
+  bool changingFilament;
   bool cardOK ;
   char filename[13];
   char longFilename[LONG_FILENAME_LENGTH];
+  int timeEstimate;
   bool filenameIsDir;
   int lastnr; //last number of the autostart;
+
 private:
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;

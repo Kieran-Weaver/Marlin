@@ -30,6 +30,7 @@
 #include "SdFatConfig.h"
 #include "Sd2PinMap.h"
 #include "SdInfo.h"
+
 //------------------------------------------------------------------------------
 // SPI speed is F_CPU/2^(1 + index), 0 <= index <= 6
 /** Set SCK to max rate of F_CPU/2. See Sd2Card::setSckRate(). */
@@ -103,6 +104,8 @@ uint8_t const SD_CARD_ERROR_WRITE_TIMEOUT = 0X17;
 uint8_t const SD_CARD_ERROR_SCK_RATE = 0X18;
 /** init() not called */
 uint8_t const SD_CARD_ERROR_INIT_NOT_CALLED = 0X19;
+/** crc check error */
+uint8_t const SD_CARD_ERROR_CRC = 0x20;
 //------------------------------------------------------------------------------
 // card types
 /** Standard capacity V1 SD card */
@@ -156,6 +159,8 @@ class Sd2Card {
   /** Construct an instance of Sd2Card. */
   Sd2Card() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
   uint32_t cardSize();
+  uint32_t recoveryCount;
+  uint32_t errorCount;
   bool erase(uint32_t firstBlock, uint32_t lastBlock);
   bool eraseSingleBlockEnable();
   /**

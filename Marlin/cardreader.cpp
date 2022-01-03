@@ -14,6 +14,7 @@ CardReader::CardReader()
    filesize = 0;
    sdpos = 0;
    sdprinting = false;
+   changingFilament = false;
    cardOK = false;
    saving = false;
    logging = false;
@@ -200,6 +201,7 @@ void CardReader::release()
 {
   sdprinting = false;
   cardOK = false;
+  changingFilament = false;
 }
 
 void CardReader::startFileprint()
@@ -207,6 +209,7 @@ void CardReader::startFileprint()
   if(cardOK)
   {
     sdprinting = true;
+    changingFilament = false;
   }
 }
 
@@ -215,6 +218,7 @@ void CardReader::pauseSDPrint()
   if(sdprinting)
   {
     sdprinting = false;
+    changingFilament = true;
   }
 }
 
@@ -283,9 +287,9 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
   else //opening fresh file
   {
     file_subcall_ctr=0; //resetting procedure depth in case user cancels print while in procedure
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPGM("Now fresh file: ");
-    SERIAL_ECHOLN(name);
+    //SERIAL_ECHO_START;
+    //SERIAL_ECHOPGM("Now fresh file: ");
+    //SERIAL_ECHOLN(name);
   }
   sdprinting = false;
   
@@ -343,13 +347,14 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
     if (file.open(curDir, fname, O_READ)) 
     {
       filesize = file.fileSize();
-      SERIAL_PROTOCOLPGM(MSG_SD_FILE_OPENED);
-      SERIAL_PROTOCOL(fname);
-      SERIAL_PROTOCOLPGM(MSG_SD_SIZE);
-      SERIAL_PROTOCOLLN(filesize);
+      //SERIAL_PROTOCOLPGM(MSG_SD_FILE_OPENED);
+      //SERIAL_PROTOCOL(fname);
+      //SERIAL_PROTOCOLPGM(MSG_SD_SIZE);
+      //SERIAL_PROTOCOLLN(filesize);
       sdpos = 0;
-      
-      SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
+      getTimeEstimate();
+      setIndex(0);
+      //SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
       lcd_setstatus(fname);
     }
     else
@@ -376,6 +381,92 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
     }
   }
   
+}
+
+void CardReader::getTimeEstimate()
+{
+    if(!cardOK)
+        return;
+    
+    char serial_char;
+    int serial_count = 0;
+    int linenum = 0;
+    //static const char *time_est ="00:00";
+    bool comment_mode = false;
+    char time_est_buffer[30][50];
+    
+    while (!eof()) {
+        int16_t n = get();
+        
+        serial_char = (char) n;
+        
+        if (serial_char == '\n' || serial_char == '\r' || serial_char == '\r\n') {
+            
+            if (comment_mode == true) {
+
+                if (time_est_buffer[linenum][2] == 'P' && time_est_buffer[linenum][3] == 'r') {
+
+                    int colonCount = 0;
+                    for (int i = 1; i < sizeof(time_est_buffer[linenum]); i++) {
+                        if (time_est_buffer[linenum][i] == ':') {
+                            colonCount++;
+                        }
+
+                        if (colonCount == 2) {
+
+                            char* time_est_all = &time_est_buffer[linenum][i-2];
+                            
+                            char pos1_char[] = {time_est_all[0], '\0'};
+                            char pos2_char[] = {time_est_all[1], '\0'};
+                            char pos3_char[] = {time_est_all[3], '\0'};
+                            char pos4_char[] = {time_est_all[4], '\0'};
+                            
+                            unsigned int tenHours;
+                            unsigned int singleHour;
+                            unsigned int tenMins;
+                            unsigned int singleMin;
+                            
+                            unsigned int totalMinutes;
+                          
+                            tenHours = strtol(pos1_char, NULL, 10) * 600;
+                            singleHour = strtol(pos2_char, NULL, 10) * 60;
+                            tenMins = strtol(pos3_char, NULL, 10) * 10;
+                            singleMin = strtol(pos4_char, NULL, 10);
+                            
+                            totalMinutes = tenHours+singleHour+tenMins+singleMin;
+                            //SERIAL_ECHO_START;
+                            //SERIAL_ECHOLN(totalMinutes);
+                            timeEstimate = totalMinutes;
+                            
+                            return;
+                        }
+
+                    }
+                    return;
+                }
+            }
+
+            comment_mode = false; //for new command
+            serial_count = 0; //clear buffer
+
+            if (linenum > 25) {
+                timeEstimate = 0;
+                return;
+            }
+            linenum += 1;
+        }
+
+        else {
+            if (serial_char == ';') {
+                comment_mode = true;
+            }
+
+            if (comment_mode == true)
+                serial_count += 1;
+                time_est_buffer[linenum][serial_count] = serial_char;
+            }
+        }
+    
 }
 
 void CardReader::removeFile(char* name)
