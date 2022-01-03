@@ -20,6 +20,12 @@ int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
 
+#ifdef FILAMENT_LCD_DISPLAY
+unsigned long message_millis=0;
+#endif
+
+
+
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
@@ -531,6 +537,9 @@ static void lcd_status_screen()
         encoderPosition = 0;
         lcd_quick_feedback();
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+#ifdef FILAMENT_LCD_DISPLAY
+        message_millis=millis();  //get status message to show up for a while
+#endif
     }
 
 #ifdef ULTIPANEL_FEEDMULTIPLY
@@ -716,6 +725,23 @@ static void lcd_autostart_sd()
     card.checkautostart(true);
 }
 #endif
+
+void lcd_set_home_offsets()
+{
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+      if (i != E_AXIS) {
+        add_homing[i] -= current_position[i];
+        current_position[i] = 0.0;
+      }
+    }
+    plan_set_position(0.0, 0.0, 0.0, current_position[E_AXIS]);
+
+    // Audio feedback
+    enquecommand_P(PSTR("M300 S659 P200"));
+    enquecommand_P(PSTR("M300 S698 P200"));
+    lcd_return_to_status();
+}
+
 
 #ifdef BABYSTEPPING
 static void lcd_babystep_x()
@@ -1144,8 +1170,9 @@ static void lcd_prepare_menu()
       MENU_ITEM(function, MSG_AUTOSTART, ' ', lcd_autostart_sd);
     #endif
 #endif
-    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, ' ', PSTR("M84"));
-    MENU_ITEM(gcode, MSG_AUTO_HOME, ' ', PSTR("G28"));
+    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
@@ -1633,7 +1660,7 @@ static void lcd_control_temperature_menu()
 
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
-#if TEMP_SENSOR_1 != 0
+#if TEMP_SENSOR_0 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_1 != 0
@@ -2277,6 +2304,9 @@ void lcd_setstatus(const char* message)
         return;
     strncpy(lcd_status_message, message, LCD_WIDTH);
     lcdDrawUpdate = 2;
+#ifdef FILAMENT_LCD_DISPLAY
+        message_millis=millis();  //get status message to show up for a while
+#endif
 }
 void lcd_setstatuspgm(const char* message)
 {
@@ -2284,6 +2314,9 @@ void lcd_setstatuspgm(const char* message)
         return;
     strncpy_P(lcd_status_message, message, LCD_WIDTH);
     lcdDrawUpdate = 2;
+#ifdef FILAMENT_LCD_DISPLAY
+        message_millis=millis();  //get status message to show up for a while
+#endif
 }
 void lcd_setalertstatuspgm(const char* message)
 {
@@ -2468,6 +2501,20 @@ char *ftostr32(const float &x)
   conv[4]=(xx/10)%10+'0';
   conv[5]=(xx)%10+'0';
   conv[6]=0;
+  return conv;
+}
+
+//Float to string with 1.23 format
+char *ftostr12ns(const float &x)
+{
+  long xx=x*100;
+  
+  xx=abs(xx);
+  conv[0]=(xx/100)%10+'0';
+  conv[1]='.';
+  conv[2]=(xx/10)%10+'0';
+  conv[3]=(xx)%10+'0';
+  conv[4]=0;
   return conv;
 }
 

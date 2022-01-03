@@ -64,7 +64,7 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,max_xy_jerk);
   EEPROM_WRITE_VAR(i,max_z_jerk);
   EEPROM_WRITE_VAR(i,max_e_jerk);
-  EEPROM_WRITE_VAR(i,add_homeing);
+  EEPROM_WRITE_VAR(i,add_homing);
   EEPROM_WRITE_VAR(i,encoder_steps_per_menu_item);
   EEPROM_WRITE_VAR(i,encoder_pulses_per_step);
   #ifdef DELTA
@@ -171,9 +171,9 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Home offset (mm):");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M206 X",add_homeing[0] );
-    SERIAL_ECHOPAIR(" Y" ,add_homeing[1] );
-    SERIAL_ECHOPAIR(" Z" ,add_homeing[2] );
+    SERIAL_ECHOPAIR("  M206 X",add_homing[0] );
+    SERIAL_ECHOPAIR(" Y" ,add_homing[1] );
+    SERIAL_ECHOPAIR(" Z" ,add_homing[2] );
     SERIAL_ECHOLN("");
 #ifdef DELTA
     SERIAL_ECHO_START;
@@ -230,7 +230,7 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,max_xy_jerk);
         EEPROM_READ_VAR(i,max_z_jerk);
         EEPROM_READ_VAR(i,max_e_jerk);
-        EEPROM_READ_VAR(i,add_homeing);
+        EEPROM_READ_VAR(i,add_homing);
         EEPROM_READ_VAR(i,encoder_steps_per_menu_item);
         EEPROM_READ_VAR(i,encoder_pulses_per_step);
         #ifdef DELTA
@@ -306,7 +306,7 @@ void Config_ResetDefault()
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
-    add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
+    add_homing[0] = add_homing[1] = add_homing[2] = 0;
     encoder_steps_per_menu_item=DEFAULT_ENCODER_STEPS_PER_MENU_ITEM;
     encoder_pulses_per_step=DEFAULT_ENCODER_PULSES_PER_STEP;
 #ifdef DELTA
