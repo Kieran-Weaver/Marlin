@@ -61,6 +61,9 @@
 #include <SPI.h>
 #endif
 
+#ifndef VERSION_STRING
+#define VERSION_STRING  "1.0.2"
+#endif
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
