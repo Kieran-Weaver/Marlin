@@ -190,7 +190,8 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
 #elif defined(SR_LCD_2W_NL)
-   
+
+  extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
@@ -198,7 +199,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 
 #else
   // Standard directly connected LCD implementations
-  #if LANGUAGE_CHOICE == ru
+  #ifdef LANGUAGE_RU
     #include "LiquidCrystalRus.h"
     #define LCD_CLASS LiquidCrystalRus
   #else 
@@ -547,7 +548,7 @@ static void lcd_implementation_status_screen()
 # endif//LCD_WIDTH > 19
     lcd.setCursor(LCD_WIDTH - 8, 1);
     lcd.print('Z');
-    lcd.print(ftostr32(current_position[Z_AXIS] + 0.00001));
+    lcd.print(ftostr32np(current_position[Z_AXIS] + 0.00001));
 #endif//LCD_HEIGHT > 2
 
 #if LCD_HEIGHT > 3

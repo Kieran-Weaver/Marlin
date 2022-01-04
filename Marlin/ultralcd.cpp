@@ -92,6 +92,10 @@ static void lcd_set_contrast();
 static void lcd_control_retract_menu();
 static void lcd_sdcard_menu();
 
+#ifdef DELTA_CALIBRATION_MENU
+static void lcd_delta_calibrate_menu();
+#endif // DELTA_CALIBRATION_MENU
+
 static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
 
 /* Different types of actions that can be used in menu items. */
@@ -719,13 +723,24 @@ static void lcd_sdcard_stop()
 static void lcd_main_menu()
 {
     START_MENU();
-
+/* Old code
 	if (card.isFileOpen()) {
 		lcd_tune_screen();
 	} else {
 		lcd_main_screen();
 	}
-
+*/
+    MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
+    if (movesplanned() || IS_SD_PRINTING)
+    {
+        MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
+    }else{
+        MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
+#ifdef DELTA_CALIBRATION_MENU
+        MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
+#endif // DELTA_CALIBRATION_MENU
+    }
+    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 #ifdef SDSUPPORT
     if (card.cardOK)
     {
@@ -1210,6 +1225,20 @@ static void lcd_prepare_menu()
     //MENU_ITEM(function, MSG_MOVE_AXIS, ' ', testGCODE);
     END_MENU();
 }
+
+#ifdef DELTA_CALIBRATION_MENU
+static void lcd_delta_calibrate_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_X, PSTR("G0 F8000 X-77.94 Y-45 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Y, PSTR("G0 F8000 X77.94 Y-45 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Z, PSTR("G0 F8000 X0 Y90 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_CENTER, PSTR("G0 F8000 X0 Y0 Z0"));
+    END_MENU();
+}
+#endif // DELTA_CALIBRATION_MENU
 
 float move_menu_scale;
 static void lcd_move_menu_axis();
@@ -2003,12 +2032,12 @@ void lcd_init()
     lcd_implementation_init();
 
 #ifdef NEWPANEL
-    pinMode(BTN_EN1,INPUT);
-    pinMode(BTN_EN2,INPUT);
+    SET_INPUT(BTN_EN1);
+    SET_INPUT(BTN_EN2);
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
   #if BTN_ENC > 0
-    pinMode(BTN_ENC,INPUT);
+    SET_INPUT(BTN_ENC);
     WRITE(BTN_ENC,HIGH);
   #endif
   #ifdef REPRAPWORLD_KEYPAD
@@ -2413,7 +2442,20 @@ char *ftostr12ns(const float &x)
   return conv;
 }
 
-// Convert int to lj string with +123.0 format
+//  convert float to space-padded string with -_23.4_ format
+char *ftostr32np(const float &x) {
+  char *c = ftostr32(x);
+  if (c[0] == '0' || c[0] == '-') {
+    if (c[0] == '0') c[0] = ' ';
+    if (c[1] == '0') c[1] = ' ';
+  }
+  if (c[5] == '0') {
+    c[5] = ' ';
+    if (c[4] == '0') c[4] = c[3] = ' ';
+  }
+  return c;
+}
+
 char *itostr31(const int &xx)
 {
   conv[0]=(xx>=0)?'+':'-';
