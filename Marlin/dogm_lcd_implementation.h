@@ -939,7 +939,7 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
         }
         if(int(degTargetHotend(0)) == 0 && int(degHotend(0)) < 40 ) {
             u8g.setPrintPos(24, 35);
-            u8g.print(MSG_COOLEDDOWN);
+            u8g.print(MSG_COOLDOWN);
         }
         
         /*else if(int(degTargetHotend(0)) > 0 && int(degTargetHotend(0))-int(degHotend(0)) < 10 ) {
@@ -1142,14 +1142,14 @@ static void _drawmenu_sd(uint8_t row, const char* pstr, const char* filename, ch
 
 //New T Menus -j
 
-#define lcd_implementation_drawmenu_back_selected(row, pstr, location, data) lcd_implementation_drawmenu_generic(row, pstr, location, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
-#define lcd_implementation_drawmenu_back(row, pstr, location, data) lcd_implementation_drawmenu_generic(row, pstr, location, ' ', LCD_STR_UPLEVEL[0])
-#define lcd_implementation_drawmenu_submenu_selected(row, pstr, location, data) lcd_implementation_drawmenu_generic(row, pstr, location, '>', ' ')
-#define lcd_implementation_drawmenu_submenu(row, pstr, location, data) lcd_implementation_drawmenu_generic(row, pstr, location, ' ', ' ')
-#define lcd_implementation_drawmenu_gcode_selected(row, pstr, location, gcode) lcd_implementation_drawmenu_generic(row, pstr, location, '>', ' ')
-#define lcd_implementation_drawmenu_gcode(row, pstr, location, gcode) lcd_implementation_drawmenu_generic(row, pstr, location, ' ', ' ')
-#define lcd_implementation_drawmenu_function_selected(row, pstr, location, data) lcd_implementation_drawmenu_generic(row, pstr, location, '>', ' ')
-#define lcd_implementation_drawmenu_function(row, pstr, location, data) lcd_implementation_drawmenu_generic(row, pstr, location, ' ', ' ')
+#define lcd_implementation_drawmenu_back_selected(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+#define lcd_implementation_drawmenu_back(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ', LCD_STR_UPLEVEL[0])
+#define lcd_implementation_drawmenu_submenu_selected(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', '>', ' ')
+#define lcd_implementation_drawmenu_submenu(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ', ' ')
+#define lcd_implementation_drawmenu_gcode_selected(row, pstr, gcode) lcd_implementation_drawmenu_generic(row, pstr, ' ', '>', ' ')
+#define lcd_implementation_drawmenu_gcode(row, pstr, gcode) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ', ' ')
+#define lcd_implementation_drawmenu_function_selected(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', '>', ' ')
+#define lcd_implementation_drawmenu_function(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ', ' ')
 
 static void lcd_implementation_quick_feedback()
 {
@@ -1166,5 +1166,3 @@ static void lcd_implementation_quick_feedback()
 #endif
 }
 #endif//ULTRA_LCD_IMPLEMENTATION_DOGM_H
-
-

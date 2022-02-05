@@ -327,8 +327,6 @@ bool cancel_heatup = false ;
 float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
 #endif
 
-bool cancel_heatup = false ;
-
 #ifdef FILAMENT_SENSOR
   //Variables for Filament Sensor input 
   float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404 
@@ -3933,13 +3931,13 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       if(code_seen(axis_codes[X_AXIS]))
       {
         if(code_value_long() != 0) {
-          current_position[X_AXIS]=code_value()+add_homeing[0];
+          current_position[X_AXIS]=code_value()+add_homing[0];
         }
       }
 
       if(code_seen(axis_codes[Y_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Y_AXIS]=code_value()+add_homeing[1];
+          current_position[Y_AXIS]=code_value()+add_homing[1];
         }
       }
 
@@ -4003,7 +4001,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
       if(code_seen(axis_codes[Z_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Z_AXIS]=code_value()+add_homeing[2];
+          current_position[Z_AXIS]=code_value()+add_homing[2];
         }
       }
       #ifdef ENABLE_AUTO_BED_LEVELING
@@ -4981,4 +4979,3 @@ void calculate_volumetric_multipliers() {
 #endif
 #endif
 }
-

@@ -48,19 +48,11 @@
   #define MACHINE_NAME "SAV MkI"
   #define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #else
-<<<<<<< HEAD
 	#ifdef CUSTOM_MENDEL_NAME
 		#define MACHINE_NAME CUSTOM_MENDEL_NAME
 	#else
 		#define MACHINE_NAME "DittoPro"
 	#endif
-=======
-  #ifdef CUSTOM_MENDEL_NAME
-    #define MACHINE_NAME CUSTOM_MENDEL_NAME
-  #else
-    #define MACHINE_NAME "Mendel"
-  #endif
->>>>>>> a2109cb492e92e969031aa424533937d6c3d8f38
 
 // Default firmware set to Mendel
   #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"

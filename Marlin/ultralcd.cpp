@@ -166,9 +166,9 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
         if (lcdDrawUpdate) { \
             const char* _label_pstr = PSTR(label); \
             if ((encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
-                lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , location, ## args ); \
+                lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , ## args ); \
             }else{\
-                lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , location, ## args ); \
+                lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
             }\
         }\
         if (wasClicked && (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) {\
@@ -733,17 +733,17 @@ static void lcd_main_menu()
 		lcd_main_screen();
 	}
 */
-    MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
+    MENU_ITEM(back, MSG_WATCH, ' ', lcd_status_screen);
     if (movesplanned() || IS_SD_PRINTING)
     {
-        MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
+        MENU_ITEM(submenu, MSG_TUNE, ' ', lcd_tune_menu);
     }else{
-        MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
+        MENU_ITEM(submenu, MSG_PREPARE, ' ', lcd_prepare_menu);
 #ifdef DELTA_CALIBRATION_MENU
         MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
 #endif // DELTA_CALIBRATION_MENU
     }
-    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM(submenu, MSG_CONTROL, ' ', lcd_control_menu);
 #ifdef SDSUPPORT
     if (card.cardOK)
     {
@@ -840,10 +840,10 @@ void lcd_set_home_offsets()
 static void lcd_tune_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-    MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999);
+    MENU_ITEM(back, MSG_MAIN, ' ', lcd_main_menu);
+    MENU_ITEM_EDIT(int3, MSG_SPEED, ' ', &feedmultiply, 10, 999);
 #if TEMP_SENSOR_0 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE, ' ', &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_1 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE1, ' ', &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
@@ -1202,9 +1202,9 @@ static void lcd_prepare_menu()
       MENU_ITEM(function, MSG_AUTOSTART, ' ', lcd_autostart_sd);
     #endif
 #endif
-    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
-    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, ' ', PSTR("M84"));
+    MENU_ITEM(gcode, MSG_AUTO_HOME, ' ', PSTR("G28"));
+    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, ' ', lcd_set_home_offsets);
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
@@ -1605,10 +1605,10 @@ static void lcd_dial_sensitivity_menu()
 static void lcd_control_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-    MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
-    MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-	MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
+    MENU_ITEM(back, MSG_MAIN, ' ', lcd_main_menu);
+    MENU_ITEM(submenu, MSG_TEMPERATURE, ' ', lcd_control_temperature_menu);
+    MENU_ITEM(submenu, MSG_MOTION, ' ', lcd_control_motion_menu);
+	MENU_ITEM(submenu, MSG_VOLUMETRIC, ' ', lcd_control_volumetric_menu);
 
 #ifdef DOGLCD
 //    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
@@ -1634,9 +1634,9 @@ static void lcd_control_temperature_menu()
 #endif
 
     START_MENU();
-    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM(back, MSG_CONTROL, ' ', lcd_control_menu);
 #if TEMP_SENSOR_0 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE, ' ', &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_1 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE1, ' ', &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
@@ -1647,12 +1647,12 @@ static void lcd_control_temperature_menu()
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, ' ', &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
-    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, ' ', &fanSpeed, 0, 255);
 #if defined AUTOTEMP && (TEMP_SENSOR_0 != 0)
-    MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
-    MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
-    MENU_ITEM_EDIT(float3, MSG_MAX, &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
-    MENU_ITEM_EDIT(float32, MSG_FACTOR, &autotemp_factor, 0.0, 1.0);
+    MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, ' ', &autotemp_enabled);
+    MENU_ITEM_EDIT(float3, MSG_MIN, ' ', &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
+    MENU_ITEM_EDIT(float3, MSG_MAX, ' ', &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
+    MENU_ITEM_EDIT(float32, MSG_FACTOR, ' ', &autotemp_factor, 0.0, 1.0);
 #endif
 #ifdef PIDTEMP
     MENU_ITEM_EDIT(float52, MSG_PID_P, ' ', &Kp, 1, 9990);
@@ -1671,10 +1671,10 @@ static void lcd_control_temperature_menu()
 static void lcd_control_temperature_preheat_pla_settings_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
-    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &plaPreheatFanSpeed, 0, 255);
+    MENU_ITEM(back, MSG_TEMPERATURE, ' ', lcd_control_temperature_menu);
+    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, ' ', &plaPreheatFanSpeed, 0, 255);
 #if TEMP_SENSOR_0 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE, &plaPreheatHotendTemp, 0, HEATER_0_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE, ' ', &plaPreheatHotendTemp, 0, HEATER_0_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, ' ', &plaPreheatHPBTemp, 0, BED_MAXTEMP - 15);
@@ -1688,10 +1688,10 @@ static void lcd_control_temperature_preheat_pla_settings_menu()
 static void lcd_control_temperature_preheat_abs_settings_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
-    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &absPreheatFanSpeed, 0, 255);
+    MENU_ITEM(back, MSG_TEMPERATURE, ' ', lcd_control_temperature_menu);
+    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, ' ', &absPreheatFanSpeed, 0, 255);
 #if TEMP_SENSOR_0 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE, &absPreheatHotendTemp, 0, HEATER_0_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE, ' ', &absPreheatHotendTemp, 0, HEATER_0_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, ' ', &absPreheatHPBTemp, 0, BED_MAXTEMP - 15);
@@ -1741,16 +1741,16 @@ static void lcd_control_motion_menu()
 static void lcd_control_volumetric_menu()
 {
 	START_MENU();
-	MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+	MENU_ITEM(back, MSG_CONTROL, ' ', lcd_control_menu);
 
-	MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, &volumetric_enabled, calculate_volumetric_multipliers);
+	MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, ' ', &volumetric_enabled, calculate_volumetric_multipliers);
 
 	if (volumetric_enabled) {
-		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_0, &filament_size[0], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
+		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_0, ' ', &filament_size[0], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
 #if EXTRUDERS > 1
-		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_1, &filament_size[1], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
+		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_1, ' ', &filament_size[1], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
 #if EXTRUDERS > 2
-		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_2, &filament_size[2], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
+		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_2, ' ', &filament_size[2], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
 #endif
 #endif
 	}
@@ -1913,9 +1913,9 @@ void lcd_sdcard_menu()
             #endif
             if (card.filenameIsDir)
             {
-                MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
+                MENU_ITEM(sddirectory, MSG_CARD_MENU, ' ', card.filename, card.longFilename);
             }else{
-                MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
+                MENU_ITEM(sdfile, MSG_CARD_MENU, ' ', card.filename, card.longFilename);
             }
         }else{
             MENU_ITEM_DUMMY();
